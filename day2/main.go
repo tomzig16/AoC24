@@ -48,47 +48,43 @@ func Part1(input [][]int) {
 func Part2(input [][]int) {
 	numberOfSafe := 0
 	for _, line := range input {
-		confirmedUnsafe := false
-		hasRemovedElement := false
-		isAscending := line[0] < line[1]
-		// Check first element wheter its problematic or not
-		// confirmedUnsafe = !CheckIfSafe(line[0], line[1], isAscending)
-		// if confirmedUnsafe {
-		// 	isFirstProblematic := CheckIfSafe(line[1], line[2], isAscending)
-		// 	if isFirstProblematic {
-		// 		hasRemovedElement = true
-		// 		confirmedUnsafe = false
-		// 	} else {
-
-		// 	}
-
-		// }
-
-		for j := 2; j < len(line); j++ {
-			confirmedUnsafe = !CheckIfSafe(line[j-1], line[j], isAscending)
-			if confirmedUnsafe && !hasRemovedElement {
-				couldBeRemoved := true
-				if j != len(line)-1 {
-					couldBeRemoved = CheckIfSafe(line[j-1], line[j+1], isAscending)
-				} else {
-					couldBeRemoved = true
-				}
-				if couldBeRemoved {
-					confirmedUnsafe = false
-					hasRemovedElement = true
-					j++
-				}
-			}
-			// If it is still unsafe, we should just exit the loop as line is no longer valid
-			if confirmedUnsafe {
-				break
-			}
+		confirmedUnsafe := CheckLine(line, false)
+		if confirmedUnsafe {
+			confirmedUnsafe = CheckLine(line[1:], true)
 		}
+
 		if !confirmedUnsafe {
 			numberOfSafe++
 		}
 	}
 	fmt.Println("Result Part 2: ", numberOfSafe)
+}
+
+func CheckLine(line []int, withoutFirstNumber bool) bool {
+	hasRemovedElement := withoutFirstNumber
+	isAscending := line[0] < line[1]
+	confirmedUnsafe := false
+	for j := 1; j < len(line); j++ {
+		confirmedUnsafe = !CheckIfSafe(line[j-1], line[j], isAscending)
+		if confirmedUnsafe && !hasRemovedElement {
+			couldBeRemoved := true
+			if j != len(line)-1 {
+				couldBeRemoved = CheckIfSafe(line[j-1], line[j+1], isAscending)
+			} else {
+				couldBeRemoved = true
+			}
+			if couldBeRemoved {
+				confirmedUnsafe = false
+				hasRemovedElement = true
+				j++
+			}
+		}
+		// If it is still unsafe, we should just exit the loop as line is no longer valid
+		if confirmedUnsafe {
+			break
+		}
+	}
+	return confirmedUnsafe
 }
 
 func CheckIfSafe(input1 int, input2 int, isAscending bool) bool {
