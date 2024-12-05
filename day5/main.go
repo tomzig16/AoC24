@@ -63,10 +63,7 @@ func GetOrderingRulesAndPageNumbers(input []string) (map[string]byte, [][]string
 		}
 
 		if readingOrderingRules {
-			// arr, ok := orderingRules[numbers[0]]
-			// if !ok {
 			orderingRules[line] = 0
-			// }
 		} else {
 			numbers := strings.Split(line, ",")
 			pageNumbers = append(pageNumbers, make([]string, 0))
@@ -110,16 +107,44 @@ func Part1(orderingRules map[string]byte, pageNumbers [][]string) {
 func Part2(orderingRules map[string]byte, pageNumbers [][]string) {
 	finalSum := 0
 	for _, line := range pageNumbers {
-		isLineCorrect, failedIndex := CheckIfSequenceIsCorrect(orderingRules, line)
-		if !isLineCorrect {
+		wasFixed := false
+		for {
+			isLineCorrect, failedIndex := CheckIfSequenceIsCorrect(orderingRules, line)
+			if isLineCorrect {
+				break
+			}
+			wasFixed = false
+			triedForward := false
+			for i := failedIndex - 1; i >= 0; i-- {
+				_, ok := orderingRules[line[failedIndex]+"|"+line[i]]
+				if ok {
+					wasFixed = true
+					line[i], line[failedIndex] = line[failedIndex], line[i]
+					break
+				}
+			}
+
+			if !wasFixed && !triedForward {
+				for i := failedIndex + 1; i < len(line); i++ {
+					_, ok := orderingRules[line[i]+"|"+line[failedIndex]]
+					if ok {
+						wasFixed = true
+						line[i], line[failedIndex] = line[failedIndex], line[i]
+						break
+					}
+				}
+				triedForward = true
+			}
+		}
+
+		if wasFixed {
 			index := (len(line) / 2)
 			nToAdd, _ := strconv.Atoi(line[index])
 			finalSum += nToAdd
-			println(failedIndex)
 		}
 	}
 
-	fmt.Println("Result Part 2: ")
+	fmt.Println("Result Part 2: ", finalSum)
 }
 
 // if fails then returns index of a first failed number
@@ -135,7 +160,7 @@ func CheckIfSequenceIsCorrect(orderingRules map[string]byte, line []string) (boo
 			_, ok := orderingRules[el+"|"+line[j]]
 			if !ok {
 				isLineCorrect = false
-				failedIndex = j
+				failedIndex = i
 				break
 			}
 		}
