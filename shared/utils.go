@@ -2,6 +2,7 @@ package shared
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 )
@@ -49,4 +50,12 @@ func MaxIntAndIndex(ints []int) (int, int) {
 	}
 	return max, maxIndex
 
+}
+
+func PrintResultsStr(part int, result string) {
+	fmt.Println("Result for Part "+strconv.Itoa(part)+": ", result)
+}
+
+func PrintResultsInt(part int, result int) {
+	fmt.Println("Result for Part "+strconv.Itoa(part)+": ", result)
 }
